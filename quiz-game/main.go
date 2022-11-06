@@ -1,8 +1,10 @@
 package main
 
 import (
+	"bufio"
 	"encoding/csv"
 	"errors"
+	"flag"
 	"fmt"
 	"log"
 	"os"
@@ -40,7 +42,7 @@ func readCsvFile(fn string) ([][]string, error) {
 
 func askQuestion(questions [][]string) string {
 
-	var qs string
+	reader := bufio.NewReader(os.Stdin)
 	var cc int
 
 	for _, row := range questions {
@@ -49,9 +51,10 @@ func askQuestion(questions [][]string) string {
 
 		fmt.Println("What is:", q)
 		fmt.Print("> ")
-		fmt.Scan(&qs)
+		userInp, _ := reader.ReadString('\n')
+		userInp = strings.TrimSuffix(userInp, "\n")
 
-		if qs == a {
+		if userInp == a {
 			fmt.Println("Correct")
 			cc += 1
 		} else {
@@ -62,7 +65,11 @@ func askQuestion(questions [][]string) string {
 }
 
 func main() {
-	csv, err := readCsvFile("problems.csv")
+
+	var fileFlag = flag.String("f", "problems.csv", "takes a file as arguemnt")
+	flag.Parse()
+
+	csv, err := readCsvFile(*fileFlag)
 	if err != nil {
 		log.Fatal(err)
 	}
