@@ -7,17 +7,13 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"math/rand"
 	"os"
 	"strings"
 	"time"
 )
 
-// Read in a quiz provided via a csv file
-// the user should be able to provide their own list of problems via a flag
-// Default list should be "problems.csv"
-
-// Keep track of how many answers are correct and not correct
-// the next querstion should be provided in any case of right or wrong
+// TODO add timer
 
 func quizTimer(d time.Duration) {
 	c := time.NewTimer(d * time.Second)
@@ -51,7 +47,6 @@ func readCsvFile(fn string) ([][]string, error) {
 }
 
 func askQuestion(questions [][]string) string {
-
 	reader := bufio.NewReader(os.Stdin)
 	var cc int
 
@@ -75,15 +70,31 @@ func askQuestion(questions [][]string) string {
 	return fmt.Sprintf("You got %d answers right out of %d questions\n", cc, len(questions))
 }
 
+func shuffleQuestion(q [][]string) [][]string {
+	rand.Seed(time.Now().UnixNano())
+	rand.Shuffle(len(q), func(i, j int) {
+		q[i], q[j] = q[j], q[i]
+	})
+	return q
+
+}
+
 func main() {
 
 	var fileFlag = flag.String("f", "problems.csv", "takes a file as arguemnt")
+	var shuffleFlag = flag.Bool("shuffle", false, "Shuffle csv data")
 	flag.Parse()
 
 	csv, err := readCsvFile(*fileFlag)
+
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	fmt.Println(askQuestion(csv))
+	if *shuffleFlag {
+		shuffelCsv := shuffleQuestion(csv)
+		askQuestion(shuffelCsv)
+	} else {
+		fmt.Println(askQuestion(csv))
+	}
 }
