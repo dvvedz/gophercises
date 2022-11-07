@@ -9,6 +9,7 @@ import (
 	"log"
 	"os"
 	"strings"
+	"time"
 )
 
 // Read in a quiz provided via a csv file
@@ -18,10 +19,19 @@ import (
 // Keep track of how many answers are correct and not correct
 // the next querstion should be provided in any case of right or wrong
 
-func readCsvFile(fn string) ([][]string, error) {
-	// read file
-	f, err := os.ReadFile(fn)
+func quizTimer(d time.Duration) {
+	c := time.NewTimer(d * time.Second)
+	<-c.C
 
+	if !c.Stop() {
+		fmt.Println()
+		fmt.Println("To slow try again, increase time with -duration. Default duration is 30 seconds")
+		os.Exit(0)
+	}
+}
+
+func readCsvFile(fn string) ([][]string, error) {
+	f, err := os.ReadFile(fn)
 	if err != nil {
 		return nil, errors.New("could not read file")
 	}
@@ -51,6 +61,7 @@ func askQuestion(questions [][]string) string {
 
 		fmt.Println("What is:", q)
 		fmt.Print("> ")
+		quizTimer()
 		userInp, _ := reader.ReadString('\n')
 		userInp = strings.TrimSuffix(userInp, "\n")
 
