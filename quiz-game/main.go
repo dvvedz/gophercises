@@ -56,7 +56,7 @@ func askQuestion(questions [][]string, duration int) string {
 		fmt.Println("What is:", q)
 		fmt.Print("> ")
 
-		quizTimer(duration)
+		//quizTimer(duration)
 
 		userInp, _ := reader.ReadString('\n')
 		userInp = strings.TrimSuffix(userInp, "\n")
