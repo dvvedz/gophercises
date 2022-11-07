@@ -13,10 +13,10 @@ import (
 	"time"
 )
 
-// TODO add timer
+// TODO: rewrite code to use two different functions for reading one question, and reading all question
 
-func quizTimer(d time.Duration) {
-	c := time.NewTimer(d * time.Second)
+func quizTimer(d int) {
+	c := time.NewTimer(time.Duration(d) * time.Second)
 	<-c.C
 
 	if !c.Stop() {
@@ -43,10 +43,9 @@ func readCsvFile(fn string) ([][]string, error) {
 	}
 
 	return records, nil
-
 }
 
-func askQuestion(questions [][]string) string {
+func askQuestion(questions [][]string, duration int) string {
 	reader := bufio.NewReader(os.Stdin)
 	var cc int
 
@@ -56,7 +55,9 @@ func askQuestion(questions [][]string) string {
 
 		fmt.Println("What is:", q)
 		fmt.Print("> ")
-		quizTimer()
+
+		quizTimer(duration)
+
 		userInp, _ := reader.ReadString('\n')
 		userInp = strings.TrimSuffix(userInp, "\n")
 
@@ -76,13 +77,12 @@ func shuffleQuestion(q [][]string) [][]string {
 		q[i], q[j] = q[j], q[i]
 	})
 	return q
-
 }
 
 func main() {
-
 	var fileFlag = flag.String("f", "problems.csv", "takes a file as arguemnt")
 	var shuffleFlag = flag.Bool("shuffle", false, "Shuffle csv data")
+	var durationFlag = flag.Int("duration", 30, "Quiz game duration in seconds, quit game if it takes longer then the provided duration")
 	flag.Parse()
 
 	csv, err := readCsvFile(*fileFlag)
@@ -93,8 +93,8 @@ func main() {
 
 	if *shuffleFlag {
 		shuffelCsv := shuffleQuestion(csv)
-		askQuestion(shuffelCsv)
+		askQuestion(shuffelCsv, *durationFlag)
 	} else {
-		fmt.Println(askQuestion(csv))
+		fmt.Println(askQuestion(csv, *durationFlag))
 	}
 }
