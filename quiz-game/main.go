@@ -13,18 +13,6 @@ import (
 	"time"
 )
 
-// TODO: rewrite code to use two different functions for reading one question, and reading all question
-
-// func quizTimer(d int) {
-// 	c := time.NewTimer(time.Duration(d) * time.Second)
-// 	<-c.C
-//
-// 	if !c.Stop() {
-// 		fmt.Println()
-// 		os.Exit(0)
-// 	}
-// }
-
 func readCsvFile(fn string) ([][]string, error) {
 	f, err := os.ReadFile(fn)
 	if err != nil {
