@@ -15,16 +15,15 @@ import (
 
 // TODO: rewrite code to use two different functions for reading one question, and reading all question
 
-func quizTimer(d int) {
-	c := time.NewTimer(time.Duration(d) * time.Second)
-	<-c.C
-
-	if !c.Stop() {
-		fmt.Println()
-		fmt.Println("To slow try again, increase time with -duration. Default duration is 30 seconds")
-		os.Exit(0)
-	}
-}
+// func quizTimer(d int) {
+// 	c := time.NewTimer(time.Duration(d) * time.Second)
+// 	<-c.C
+//
+// 	if !c.Stop() {
+// 		fmt.Println()
+// 		os.Exit(0)
+// 	}
+// }
 
 func readCsvFile(fn string) ([][]string, error) {
 	f, err := os.ReadFile(fn)
@@ -49,24 +48,37 @@ func askQuestion(questions [][]string, duration int) string {
 	reader := bufio.NewReader(os.Stdin)
 	var cc int
 
+	t := time.NewTimer(time.Duration(duration) * time.Second)
+
 	for _, row := range questions {
 		q := row[0]
-		a := row[1]
+		a := strings.TrimSpace(row[1])
 
 		fmt.Println("What is:", q)
 		fmt.Print("> ")
 
-		//quizTimer(duration)
+		userInpCh := make(chan string)
 
-		userInp, _ := reader.ReadString('\n')
-		userInp = strings.TrimSuffix(userInp, "\n")
+		go func() {
+			userInp, _ := reader.ReadString('\n')
+			userInp = strings.TrimSpace(userInp)
 
-		if userInp == a {
-			fmt.Println("Correct")
-			cc += 1
-		} else {
-			fmt.Println("Incorrect")
+			userInpCh <- userInp
+		}()
+
+		select {
+		case <-t.C:
+			fmt.Println("\nTo slow! Try again... Increase time with -duration. Default duration is 30 seconds")
+			return fmt.Sprintf("You got %d answers right out of %d questions\n", cc, len(questions))
+		case userInp := <-userInpCh:
+			if userInp == a {
+				fmt.Println("Correct")
+				cc += 1
+			} else {
+				fmt.Println("Incorrect")
+			}
 		}
+
 	}
 	return fmt.Sprintf("You got %d answers right out of %d questions\n", cc, len(questions))
 }
