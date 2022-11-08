@@ -28,7 +28,3 @@ func TestReadCsvFileEmpty(t *testing.T) {
 		t.Errorf("readCsvFile('') = %d, %v; want [], could not read file", len(csv), err)
 	}
 }
-
-func TestReadQuestion(t *testing.T) {
-
-}

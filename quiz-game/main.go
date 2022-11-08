@@ -93,7 +93,7 @@ func main() {
 
 	if *shuffleFlag {
 		shuffelCsv := shuffleQuestion(csv)
-		askQuestion(shuffelCsv, *durationFlag)
+		fmt.Println(askQuestion(shuffelCsv, *durationFlag))
 	} else {
 		fmt.Println(askQuestion(csv, *durationFlag))
 	}
