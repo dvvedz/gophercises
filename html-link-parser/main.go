@@ -1,42 +1,27 @@
 package main
 
 import (
-	"io"
-	"net/http"
-
-	"golang.org/x/net/html"
+	"app/linkparser"
+	"fmt"
+	"strings"
 )
 
-func sendRequest(url string) io.Reader {
-	res, err := http.Get(url)
-
-	if err != nil {
-		panic(err)
-	}
-	defer res.Body.Close()
-
-	// body, readErr := io.ReadAll(res.Body)
-
-	// if readErr != nil {
-	// panic(readErr)
-	// }
-
-	return res.Body
-}
-
-func parseHtml(b io.Reader) {
-	doc, err := html.Parse(b)
-
-	if err != nil {
-		panic(err)
-	}
-}
+var exampleHtml = `
+<html>
+<body>
+  <a href="/dog-cat">dog cat <!-- commented text SHOULD NOT be included! --></a>
+</body>
+</html>
+`
 
 func main() {
-	// Get html
-	body := sendRequest("https://google.com")
-	//fmt.Println(string(res))
 
-	// parse a tags
-	parseHtml(body)
+	r := strings.NewReader(exampleHtml)
+
+	links, err := linkparser.Parse(r)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("%+v\n", links)
 }
